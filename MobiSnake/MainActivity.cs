@@ -38,7 +38,7 @@ namespace MobiSnake
 
             _gestureDetector = new GestureDetector(this);
 
-            timer.Interval = 50;
+            timer.Interval = 200;
             timer.Elapsed += Draw;
 
             timer.Start();
@@ -54,13 +54,28 @@ namespace MobiSnake
             RunOnUiThread(() => gameArea.Draw());
         }
 
-        private void CheckState()
+        void CheckState()
         {
             if (gameArea.IsOffScreen(gameArea.snakeHead)) Lose();
             if (gameArea.snakeBody.Count == gameArea.snakeMaxLength)
             {
                 gameArea.foodTimerCount = 0;
                 Win();
+            }
+
+            if (gameArea.snakeBody.Count > 4)
+            {
+                for (int i = gameArea.snakeNeck - 4;;)
+                {
+                    if (i < 0) i = 100 - i;
+                    if (gameArea.IsCrossed(gameArea.snakeHead, gameArea.snakeBody[i]))
+                    {
+                        Lose();
+                        break;
+                    }
+
+                    if (i-- == gameArea.snakeTail) break;
+                }
             }
         }
 
@@ -102,7 +117,7 @@ namespace MobiSnake
                 }
 
 
-                else if (Math.Abs(velocityY) > Math.Abs(velocityX) && Math.Abs(distanceY) > Math.Abs(distanceX))
+                if (Math.Abs(velocityY) > Math.Abs(velocityX) && Math.Abs(distanceY) > Math.Abs(distanceX))
                 {
                     OnSwipeUpDown(distanceY);
                     return true;

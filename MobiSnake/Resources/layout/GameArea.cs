@@ -28,8 +28,8 @@ namespace MobiSnake.Resources.layout
         int shiftY;
         public int foodTimerCount;
         internal int snakeMaxLength;
-        int snakePartsCounter;
-        int snakeTail;
+        internal int snakeNeck;
+        internal int snakeTail;
 
         Canvas gameArea;
 
@@ -46,8 +46,8 @@ namespace MobiSnake.Resources.layout
             size = 50;
             rnd = new Random();
             //speed = 8;
-            speed = 16;
-            snakeMaxLength = 10;
+            speed = 32;
+            snakeMaxLength = 100;
             foodTimerCount = 99;
             var foodPaint = new Paint();
             foodPaint.SetARGB(255, 255, 0, 0);
@@ -110,12 +110,12 @@ namespace MobiSnake.Resources.layout
             bounds.Bottom += shiftY;
             snakeHead.SetBounds(bounds.Left, bounds.Top, bounds.Right, bounds.Bottom);
             //snakeBody.Add(snakePartsCounter++, snakeHead);
-            var s = new ShapeDrawable(new OvalShape());
-            s.Paint.Set(snakeHead.Paint);
-            s.Bounds = snakeHead.Bounds;
-            snakeBody.Add(snakePartsCounter++, s);
+            var snakeNewNeck = new ShapeDrawable(new OvalShape());
+            snakeNewNeck.Paint.Set(snakeHead.Paint);
+            snakeNewNeck.Bounds = snakeHead.Bounds;
+            snakeBody.Add(snakeNeck++, snakeNewNeck);
 
-            if (snakePartsCounter == 10) snakePartsCounter = 0;
+            if (snakeNeck == 100) snakeNeck = 0;
             
             if (IsCrossed(snakeHead, food))
             {
@@ -126,7 +126,7 @@ namespace MobiSnake.Resources.layout
             else
             {
                 snakeBody.Remove(snakeTail++);
-                if (snakeTail == 10) snakeTail = 0;
+                if (snakeTail == 100) snakeTail = 0;
             }
 
             DrawSnake(snakeBody);
@@ -139,34 +139,33 @@ namespace MobiSnake.Resources.layout
             int yTop = gameArea.Height / 2 - size / 2;
             int yBottom = yTop + size;
             snakeHead.SetBounds(xLeft, yTop, xRight, yBottom);
-            snakeBody.Add(snakePartsCounter, snakeHead);
-            snakeTail = snakePartsCounter++;
+            snakeBody.Add(snakeNeck, snakeHead);
+            snakeTail = snakeNeck++;
             DrawSnake(snakeBody);
             isStarted = true;
         }
 
         void DrawSnake(Dictionary<int, ShapeDrawable> snake)
         {
-            foreach (var s in snake.Values)
-                s.Draw(gameArea);
+            foreach (var s in snake.Values) s.Draw(gameArea);
             //TestPlaceSnake();
         }
 
-        void TestPlaceSnake()
-        {
-            int xLeft = gameArea.Width / 2 - size / 2;
-            int xRight = xLeft + size;
-            int yTop = gameArea.Height / 2 - size / 2;
-            int yBottom = yTop + size;
+        //void TestPlaceSnake()
+        //{
+        //    int xLeft = gameArea.Width / 2 - size / 2;
+        //    int xRight = xLeft + size;
+        //    int yTop = gameArea.Height / 2 - size / 2;
+        //    int yBottom = yTop + size;
 
-            var sPaint = new Paint();
-            sPaint.SetARGB(0, 255, 0, 255);
-            sPaint.SetStyle(Paint.Style.Fill);
-            var s = new ShapeDrawable(new OvalShape());
-            s.Paint.Set(sPaint);
-            s.SetBounds(xLeft, yTop, xRight, yBottom);
-            s.Draw(gameArea);
-        }
+        //    var sPaint = new Paint();
+        //    sPaint.SetARGB(0, 255, 0, 255);
+        //    sPaint.SetStyle(Paint.Style.Fill);
+        //    var s = new ShapeDrawable(new OvalShape());
+        //    s.Paint.Set(sPaint);
+        //    s.SetBounds(xLeft, yTop, xRight, yBottom);
+        //    s.Draw(gameArea);
+        //}
 
         public void MoveLeft()
         {
@@ -192,7 +191,7 @@ namespace MobiSnake.Resources.layout
             shiftX = 0;
         }
 
-        bool IsCrossed(ShapeDrawable s, ShapeDrawable f)
+        internal bool IsCrossed(ShapeDrawable s, ShapeDrawable f)
         {
             return Math.Abs(s.Bounds.Left - f.Bounds.Left) < size &&
                    Math.Abs(s.Bounds.Top - f.Bounds.Top) < size;
